@@ -6,6 +6,10 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  BadRequestException,
+  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { InvitationsService } from './invitations.service';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
@@ -13,6 +17,11 @@ import { OParseIntPipe } from 'src/libs/pipes/o-parse-int.pipe';
 import { ParseSortPipe } from 'src/libs/pipes/parse-sort.pipe';
 import { ParseSearchPipe } from 'src/libs/pipes/parse-search.pipe';
 import { CheckInInvitationDto } from './dto/check-in-invitation.dto';
+import {
+  AnyFilesInterceptor,
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 
 @Controller('invitations')
 export class InvitationsController {
@@ -48,5 +57,21 @@ export class InvitationsController {
     const [invitations, skip, limit, count] =
       await this.invitationsService.list(qSkip, qLimit, qSort, qSearch);
     return { invitations, skip, limit, count };
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async upload(@UploadedFile() file: Express.Multer.File) {
+    return this.invitationsService.uploadDocument(file);
+  }
+
+  @Post('flush')
+  async flush() {
+    return this.invitationsService.flush();
+  }
+
+  @Post('set-all-status-to-false')
+  async setAllStatusToFalse() {
+    return this.invitationsService.setAllStatusToFalse();
   }
 }

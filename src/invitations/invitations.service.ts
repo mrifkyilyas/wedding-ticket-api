@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { Invitation, InvitationDocument } from './entities/invitation.entity';
 import { Model } from 'mongoose';
+import * as xlsx from 'node-xlsx';
 
 @Injectable()
 export class InvitationsService {
@@ -44,6 +45,25 @@ export class InvitationsService {
     }
   }
 
+  async flush() {
+    try {
+      return this.invitationModel.deleteMany({});
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async setAllStatusToFalse() {
+    try {
+      return this.invitationModel.updateMany(
+        { status: true },
+        { status: false },
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async list(
     skip?: number,
     limit?: number,
@@ -71,5 +91,32 @@ export class InvitationsService {
     const invitations = await cursor.exec();
     const count = await this.invitationModel.countDocuments(query);
     return [invitations, skip, limit, count];
+  }
+
+  async uploadDocument(file: Express.Multer.File): Promise<any> {
+    try {
+      if (!file) {
+        throw new BadRequestException('file required');
+      }
+      if (!file.originalname.match(/\.(xlsx)$/)) {
+        throw new BadRequestException('Format file tidak didukung!');
+      }
+      const workSheetsFromBuffer = await xlsx.parse(file.buffer);
+      const [, ...invitations] = workSheetsFromBuffer[0].data;
+      const newInvitations = [];
+      invitations.map(async (invitation: Array<string>) => {
+        const [name, location] = invitation;
+        newInvitations.push(
+          this.invitationModel.create({
+            name,
+            location,
+          }),
+        );
+      });
+      await Promise.all(newInvitations);
+      return 'uploaded';
+    } catch (error) {
+      throw error;
+    }
   }
 }
