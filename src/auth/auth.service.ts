@@ -6,7 +6,7 @@ import { GenerateJWTTokenInput } from './dto/generate-jwt-token.dto';
 import { Auth } from './entities/auth.entity';
 import { Model } from 'mongoose';
 import * as dayjs from 'dayjs';
-import { Token } from './dto/token.interface';
+import { ActorCtx } from './auth.guard';
 
 @Injectable()
 export class AuthService {
@@ -67,7 +67,7 @@ export class AuthService {
         {
           secret: this.configService.JWT_SECRET,
         },
-      )) as Token;
+      )) as ActorCtx;
       if (!jwtPayload?.authToken) {
         throw new Error('Invalid token');
       }

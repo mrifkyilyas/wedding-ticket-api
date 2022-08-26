@@ -1,4 +1,5 @@
 import {
+  CallHandler,
   createParamDecorator,
   ExecutionContext,
   HttpException,
@@ -10,11 +11,12 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { CustomDecorator } from '@nestjs/common/decorators/core/set-metadata.decorator';
 import { AuthService } from './auth.service';
+import { Observable } from 'rxjs';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = (): CustomDecorator => SetMetadata(IS_PUBLIC_KEY, true);
 
-export interface UserCtx {
+export interface ActorCtx {
   id: string;
   roleId: string;
   role: string;
@@ -23,10 +25,10 @@ export interface UserCtx {
   exp: number;
 }
 
-export const UserContext = createParamDecorator(
+export const ActorContext = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user;
+    return request.actor;
   },
 );
 
@@ -61,8 +63,7 @@ export class authGuard extends AuthGuard('jwt') {
     if (isPublic) {
       return true;
     }
-    const ctx = context.switchToHttp();
-    const request = ctx.getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const authorization = request?.headers['authorization'];
     if (!authorization) {
       throw new HttpException(
@@ -71,7 +72,8 @@ export class authGuard extends AuthGuard('jwt') {
       );
     }
     console.log(authorization);
-    await this.authService.verify(authorization);
+    const actor = await this.authService.verify(authorization);
+    request['actor'] = actor;
 
     return true;
   }
