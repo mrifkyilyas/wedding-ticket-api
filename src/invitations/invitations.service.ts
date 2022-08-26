@@ -23,15 +23,19 @@ export class InvitationsService {
     try {
       return this.invitationModel.findOne({ slug });
     } catch (error) {
-      throw new error('Invitation not found');
+      throw new BadRequestException('Invitation not found');
     }
   }
 
   async checkIn(slug: string): Promise<Invitation> {
     const invitation = await this.invitationModel.findOne({ slug });
-    if (!invitation || invitation.status === true) {
-      throw new Error('Invitation not found or allready checkin');
+    if (!invitation) {
+      throw new BadRequestException('Invitation not found');
     }
+    if (invitation.status === true) {
+      throw new BadRequestException('Invitation already checked in');
+    }
+    console.log(invitation);
     invitation.status = true;
     invitation.checkInTime = new Date();
     return invitation.save();

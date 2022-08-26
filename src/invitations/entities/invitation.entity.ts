@@ -29,7 +29,7 @@ export class Invitation {
   })
   slug: string;
 
-  @Prop({ type: Date })
+  @Prop({ type: Date, default: null })
   checkInTime: Date;
 }
 

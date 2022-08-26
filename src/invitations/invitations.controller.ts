@@ -7,9 +7,7 @@ import {
   Delete,
   Query,
   UseInterceptors,
-  BadRequestException,
   UploadedFile,
-  UploadedFiles,
 } from '@nestjs/common';
 import { InvitationsService } from './invitations.service';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
@@ -17,11 +15,7 @@ import { OParseIntPipe } from 'src/libs/pipes/o-parse-int.pipe';
 import { ParseSortPipe } from 'src/libs/pipes/parse-sort.pipe';
 import { ParseSearchPipe } from 'src/libs/pipes/parse-search.pipe';
 import { CheckInInvitationDto } from './dto/check-in-invitation.dto';
-import {
-  AnyFilesInterceptor,
-  FileInterceptor,
-  FilesInterceptor,
-} from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('invitations')
 export class InvitationsController {

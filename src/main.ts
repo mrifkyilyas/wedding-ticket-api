@@ -20,6 +20,11 @@ async function bootstrap() {
         new BadRequestException(errors),
     }),
   );
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: '*',
+    credentials: true,
+  });
   await app.listen(process.env.PORT);
   Logger.log(`Listen on port ${process.env.PORT}`, 'WeddingTicketAPI');
 }
