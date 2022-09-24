@@ -21,7 +21,11 @@ export class InvitationsService {
 
   async detail(slug: string): Promise<Invitation> {
     try {
-      return this.invitationModel.findOne({ slug });
+      const invitation = await this.invitationModel.findOne({ slug });
+      if (!invitation) {
+        throw new BadRequestException('invitation not found');
+      }
+      return invitation;
     } catch (error) {
       throw new BadRequestException('Invitation not found');
     }

@@ -77,4 +77,12 @@ export class AdminService {
       throw error;
     }
   }
+
+  async logout(authToken: string): Promise<void> {
+    try {
+      await this.authService.delete(authToken);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

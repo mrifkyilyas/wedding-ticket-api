@@ -52,6 +52,14 @@ export class AuthService {
     return auth;
   }
 
+  async delete(token: string): Promise<any> {
+    try {
+      await this.authModel.findOneAndRemove({ accessToken: token });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async generateJwtToken(payload: any): Promise<string> {
     return this.jwtService.sign(payload, {
       expiresIn: this.configService.JWT_EXPIRED_IN_SECOND,
