@@ -16,6 +16,7 @@ import { ParseSortPipe } from 'src/libs/pipes/parse-sort.pipe';
 import { ParseSearchPipe } from 'src/libs/pipes/parse-search.pipe';
 import { CheckInInvitationDto } from './dto/check-in-invitation.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from 'src/auth/auth.guard';
 
 @Controller('invitations')
 export class InvitationsController {
@@ -26,6 +27,7 @@ export class InvitationsController {
     return this.invitationsService.create(createInvitationDto);
   }
 
+  @Public()
   @Get(':slug/detail')
   detail(@Param('slug') slug) {
     return this.invitationsService.detail(slug);
