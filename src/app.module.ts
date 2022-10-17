@@ -10,6 +10,7 @@ import { SeedModule } from './seed/seed.module';
 import { SeedService } from './seed/seed.service';
 import { APP_GUARD } from '@nestjs/core';
 import { authGuard } from './auth/auth.guard';
+import { MessageBoxModule } from './message-box/message-box.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { authGuard } from './auth/auth.guard';
     MongooseModule.forRoot(process.env.MONGODB_URL),
     AdminModule,
     SeedModule,
+    MessageBoxModule,
   ],
   controllers: [AppController],
   providers: [
