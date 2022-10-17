@@ -127,4 +127,16 @@ export class InvitationsService {
       throw error;
     }
   }
+
+  async findBySlug(slug: string): Promise<InvitationDocument> {
+    try {
+      const invitation = await this.invitationModel.findOne({ slug });
+      if (!invitation) {
+        throw new BadRequestException('invitation not found');
+      }
+      return invitation;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

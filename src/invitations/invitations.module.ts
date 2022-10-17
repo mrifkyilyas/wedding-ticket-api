@@ -17,5 +17,6 @@ import { AuthModule } from 'src/auth/auth.module';
       },
     ]),
   ],
+  exports: [InvitationsService],
 })
 export class InvitationsModule {}
