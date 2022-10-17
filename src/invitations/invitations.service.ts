@@ -4,6 +4,8 @@ import { CreateInvitationDto } from './dto/create-invitation.dto';
 import { Invitation, InvitationDocument } from './entities/invitation.entity';
 import { Model } from 'mongoose';
 import * as xlsx from 'node-xlsx';
+import * as ExcelJS from 'exceljs';
+import { json2csvAsync } from 'json-2-csv';
 
 @Injectable()
 export class InvitationsService {
@@ -138,5 +140,50 @@ export class InvitationsService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async downloadExcel(): Promise<{ file: Buffer; filename: string }> {
+    const invitations = await this.invitationModel
+      .find({})
+      .select('name location slug')
+      .sort({ name: 'asc' });
+    const headers = [
+      { header: 'Nama Undangan', key: 'name', width: 20 },
+      { header: 'Alamat', key: 'location', width: 20 },
+      { header: 'Slug', key: 'slug', width: 20 },
+    ];
+    const filename = `undangan-${new Date().getTime()}`;
+    const workbook = new ExcelJS.Workbook();
+
+    // Create sheet
+    const worksheet = workbook.addWorksheet(filename);
+
+    worksheet.columns = headers;
+
+    worksheet.addRows(invitations);
+
+    const excel = (await workbook.xlsx.writeBuffer()) as Buffer;
+
+    return {
+      file: excel,
+      filename,
+    };
+  }
+
+  async getSlugs(): Promise<{
+    file: Buffer;
+    filename: string;
+  }> {
+    const invitations = await this.invitationModel.find({});
+    const filename = `slugs-${new Date().getTime()}`;
+    const csv = await json2csvAsync(invitations, {
+      keys: ['slug'],
+      delimiter: { field: ',' },
+    });
+    const file = Buffer.from(csv, 'utf-8');
+    return {
+      file,
+      filename,
+    };
   }
 }
