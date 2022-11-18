@@ -25,6 +25,15 @@ export class MessageBoxController {
     return this.messageBoxService.create(createMessageBoxDto);
   }
 
+  @Public()
+  @Get(':slug/is-have-message')
+  async isHaveMessage(@Param('slug') slug) {
+    const isHaveMessage = await this.messageBoxService.isHaveMessage(slug);    
+    return {
+      isHaveMessage,
+    };
+  }
+
   @Get('list')
   async list(
     @Query('skip', new OParseIntPipe()) qSkip,

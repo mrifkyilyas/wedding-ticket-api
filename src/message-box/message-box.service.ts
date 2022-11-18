@@ -45,7 +45,7 @@ export class MessageBoxService {
         const name = q[0];
         const value = q[1];
         searchQuery.push({
-          [name]: { $regex: '.*' + [value] + '.*', $options: 'i' },
+          ["invitation.name"]: { $regex: '.*' + [value] + '.*', $options: 'i' },
         });
       }
       Object.assign(query, { $or: searchQuery });
@@ -57,5 +57,21 @@ export class MessageBoxService {
     const messageBoxes = await cursor.exec();
     const count = await this.messageBoxModel.countDocuments(query);
     return [messageBoxes, skip, limit, count];
+  }
+
+  async isHaveMessage(slug: string): Promise<boolean> {
+    try {
+      console.log('sini');
+      const invitation = await this.invitationsService.findBySlug(slug);
+      if (!invitation) {
+        throw new BadRequestException('Invitation Tidak Terdaftar');
+      }
+      const count = await this.messageBoxModel.countDocuments({
+        invitation: invitation._id,
+      });
+      return count > 0;
+    } catch (error) {
+      throw error;
+    }
   }
 }
