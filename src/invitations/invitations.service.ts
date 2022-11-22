@@ -97,7 +97,7 @@ export class InvitationsService {
     const cursor = this.invitationModel.find(query);
     if (skip != null) cursor.skip(skip);
     if (limit != null) cursor.limit(limit);
-    if (sort) cursor.sort({ [sort[0]]: sort[1] });
+    if (sort) cursor.sort({ ['number']: 0 });
     const invitations = await cursor.exec();
     const count = await this.invitationModel.countDocuments(query);
     return [invitations, skip, limit, count];
@@ -105,6 +105,7 @@ export class InvitationsService {
 
   async uploadDocument(file: Express.Multer.File): Promise<any> {
     try {
+      console.log(file);
       if (!file) {
         throw new BadRequestException('file required');
       }
@@ -114,16 +115,15 @@ export class InvitationsService {
       const workSheetsFromBuffer = await xlsx.parse(file.buffer);
       const [, ...invitations] = workSheetsFromBuffer[0].data;
       const newInvitations = [];
-      invitations.map(async (invitation: Array<string>) => {
-        const [name, location] = invitation;
-        newInvitations.push(
-          this.invitationModel.create({
-            name,
-            location,
-          }),
-        );
-      });
-      await Promise.all(newInvitations);
+      for (const invitation of invitations) {
+        const [no, name, location]: any = invitation;
+        if (!name || name == '') continue;
+        await this.invitationModel.create({
+          name,
+          location,
+          number: no,
+        });
+      }
       return 'uploaded';
     } catch (error) {
       throw error;
@@ -145,9 +145,10 @@ export class InvitationsService {
   async downloadExcel(): Promise<{ file: Buffer; filename: string }> {
     const invitations = await this.invitationModel
       .find({})
-      .select('name location slug')
-      .sort({ name: 'asc' });
+      .select('number name location slug checkInTime')
+      .sort({ number: 'asc' });
     const headers = [
+      { header: 'No', key: 'number', width: 20 },
       { header: 'Nama Undangan', key: 'name', width: 20 },
       { header: 'Alamat', key: 'location', width: 20 },
       { header: 'Slug', key: 'slug', width: 20 },

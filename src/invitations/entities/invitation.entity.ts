@@ -14,6 +14,9 @@ export class Invitation {
   @Prop()
   name: string;
 
+  @Prop()
+  number: number;
+
   @Prop({ required: true, type: Boolean, default: false })
   status: boolean;
 
