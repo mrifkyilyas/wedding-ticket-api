@@ -45,7 +45,7 @@ export class MessageBoxService {
         const name = q[0];
         const value = q[1];
         searchQuery.push({
-          ["invitation.name"]: { $regex: '.*' + [value] + '.*', $options: 'i' },
+          ['invitation.name']: { $regex: '.*' + [value] + '.*', $options: 'i' },
         });
       }
       Object.assign(query, { $or: searchQuery });
@@ -53,7 +53,17 @@ export class MessageBoxService {
     const cursor = this.messageBoxModel.find(query).populate('invitation');
     if (skip != null) cursor.skip(skip);
     if (limit != null) cursor.limit(limit);
-    if (sort) cursor.sort({ [sort[0]]: sort[1] });
+    if (sort && sort.length > 0) {
+      const sortQuery = {};
+      for (let i = sort.length - 1; i >= 0; i--) {
+        const q = sort[i] ? sort[i].split('|') : [];
+        if (q.length < 2) continue;
+        const name = q[0];
+        const value = q[1];
+        sortQuery[name] = value;
+      }
+      cursor.sort(sortQuery);
+    }
     const messageBoxes = await cursor.exec();
     const count = await this.messageBoxModel.countDocuments(query);
     return [messageBoxes, skip, limit, count];

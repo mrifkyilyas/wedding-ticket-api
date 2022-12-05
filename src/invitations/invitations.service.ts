@@ -80,6 +80,7 @@ export class InvitationsService {
     sort?: string[],
     search?: string[],
   ): Promise<[Invitation[], number, number, number]> {
+    sort.push('number|asc');
     const query = {};
     if (search && search.length > 0) {
       const searchQuery = [];
@@ -97,7 +98,17 @@ export class InvitationsService {
     const cursor = this.invitationModel.find(query);
     if (skip != null) cursor.skip(skip);
     if (limit != null) cursor.limit(limit);
-    if (sort) cursor.sort({ ['number']: 0 });
+    if (sort && sort.length > 0) {
+      const sortQuery = {};
+      for (let i = sort.length - 1; i >= 0; i--) {
+        const q = sort[i] ? sort[i].split('|') : [];
+        if (q.length < 2) continue;
+        const name = q[0];
+        const value = q[1];
+        sortQuery[name] = value;
+      }
+      cursor.sort(sortQuery);
+    }
     const invitations = await cursor.exec();
     const count = await this.invitationModel.countDocuments(query);
     return [invitations, skip, limit, count];

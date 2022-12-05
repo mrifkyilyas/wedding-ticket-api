@@ -25,7 +25,7 @@ async function bootstrap() {
     origin: '*',
     credentials: true,
   });
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT || 3000);
   Logger.log(`Listen on port ${process.env.PORT}`, 'WeddingTicketAPI');
 }
 bootstrap();
