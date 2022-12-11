@@ -79,6 +79,7 @@ export class InvitationsService {
     limit?: number,
     sort?: string[],
     search?: string[],
+    status?: boolean,
   ): Promise<[Invitation[], number, number, number]> {
     sort.push('number|asc');
     const query = {};
@@ -94,6 +95,9 @@ export class InvitationsService {
         });
       }
       Object.assign(query, { $or: searchQuery });
+    }
+    if (status != null) {
+      Object.assign(query, { status });
     }
     const cursor = this.invitationModel.find(query);
     if (skip != null) cursor.skip(skip);

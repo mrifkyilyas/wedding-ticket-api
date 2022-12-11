@@ -51,9 +51,16 @@ export class InvitationsController {
     @Query('limit', new OParseIntPipe()) qLimit,
     @Query('sort', new ParseSortPipe()) qSort,
     @Query('search', new ParseSearchPipe()) qSearch,
+    @Query('status') qStatus,
   ) {
     const [invitations, skip, limit, count] =
-      await this.invitationsService.list(qSkip, qLimit, qSort, qSearch);
+      await this.invitationsService.list(
+        qSkip,
+        qLimit,
+        qSort,
+        qSearch,
+        qStatus,
+      );
     return { invitations, skip, limit, count };
   }
 
